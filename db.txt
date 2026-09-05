@@ -1,0 +1,26 @@
+table user{
+    user_id,
+    name,
+    password
+}
+
+table category{
+    category_id,
+    user_id,        # FK from user
+    C_name
+}
+
+table subcategory{
+    subcategory_id,
+    category_id,    # FK from category
+    SC_name,
+    priority
+}
+
+table balance{
+    balance_id,
+    ammount,
+    time,
+    in_out,         # boolean maybe? not sure about this
+    subcategory_id
+}
