@@ -1,23 +1,26 @@
 <script lang="ts">
 	import { Pie } from 'svelte-chartjs';
 	import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+	import type { PageData } from './$types';
 
 	ChartJS.register(ArcElement, Tooltip, Legend);
 
-	const userEmail = 'user@example.com';
+	let { data }: { data: PageData } = $props();
 
 	let showUserMenu = $state(false);
 
-	const chartData = {
-		labels: ['Food', 'Transport', 'Entertainment', 'Other'],
+	const palette = ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ec4899'];
+
+	const chartData = $derived({
+		labels: data.chartLabels,
 		datasets: [
 			{
-				data: [450, 120, 200, 80],
-				backgroundColor: ['#ef4444', '#3b82f6', '#f59e0b', '#8b5cf6'],
+				data: data.chartValues,
+				backgroundColor: data.chartLabels.map((_, i) => palette[i % palette.length]),
 				borderWidth: 0
 			}
 		]
-	};
+	});
 
 	const chartOptions = {
 		responsive: true,
@@ -28,8 +31,6 @@
 			}
 		}
 	};
-
-	const amountSpentThisMonth = 850;
 </script>
 
 <svelte:head>
@@ -47,7 +48,7 @@
 			onclick={() => (showUserMenu = !showUserMenu)}
 			class="flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900"
 		>
-			{userEmail}
+			{data.email}
 
 			<span class="text-xs">
 				{showUserMenu ? '▲' : '▼'}
@@ -79,16 +80,20 @@
 	<!-- Main content -->
 	<main class="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-8 py-10">
 		<!-- Pie chart -->
-		<div class="h-[350px] w-[350px] max-w-full">
-			<Pie data={chartData} options={chartOptions} />
-		</div>
+		{#if data.chartLabels.length > 0}
+			<div class="h-[350px] w-[350px] max-w-full">
+				<Pie data={chartData} options={chartOptions} />
+			</div>
+		{:else}
+			<p class="text-gray-400">No spending recorded this month.</p>
+		{/if}
 
 		<!-- Monthly spending -->
 		<div class="mt-8 text-center">
 			<p class="text-lg text-gray-500">Amount spent this month:</p>
 
 			<h2 class="mt-2 text-4xl font-bold text-gray-900">
-				CHF {amountSpentThisMonth}
+				CHF {data.spentThisMonth}
 			</h2>
 		</div>
 	</main>
