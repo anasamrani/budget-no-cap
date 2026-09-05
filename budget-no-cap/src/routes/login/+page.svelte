@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -7,6 +8,9 @@
 	// Toggle between the login form and the signup form — no separate route
 	// needed, since both actions live on this same +page.server.ts.
 	let mode = $state<'login' | 'signup'>('login');
+
+	// /auth/confirm redirects failed confirmation links here as ?error=...
+	let confirmError = $derived(page.url.searchParams.get('error'));
 </script>
 
 <svelte:head>
@@ -66,6 +70,8 @@
 
 			{#if form?.error}
 				<p class="text-sm text-red-600">{form.error}</p>
+			{:else if confirmError}
+				<p class="text-sm text-red-600">{confirmError}</p>
 			{/if}
 
 			<button type="submit" class="mt-2 rounded bg-neutral-900 px-3 py-2 text-sm text-white">

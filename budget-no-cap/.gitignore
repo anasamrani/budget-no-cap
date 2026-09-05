@@ -22,3 +22,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Local corporate TLS-proxy root cert (machine-specific, see NODE_EXTRA_CA_CERTS note)
+.zscaler-ca.pem

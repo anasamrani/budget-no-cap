@@ -21,7 +21,7 @@ export const actions: Actions = {
 		redirect(303, '/');
 	},
 
-	signup: async ({ request, locals: { supabase } }) => {
+	signup: async ({ request, url, locals: { supabase } }) => {
 		const formData = await request.formData();
 		const email = String(formData.get('email') ?? '');
 		const password = String(formData.get('password') ?? '');
@@ -33,13 +33,22 @@ export const actions: Actions = {
 
 		// `data.name` here lands in raw_user_meta_data, which the
 		// handle_new_user() trigger (step 1) reads to seed public.users.name.
-		const { error } = await supabase.auth.signUp({
+		// `emailRedirectTo` only matters when email confirmation is switched back
+		// on — without it the emailed link resolves against the project's Site
+		// URL rather than our own /auth/confirm route.
+		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
-			options: { data: { name } }
+			options: { data: { name }, emailRedirectTo: `${url.origin}/auth/confirm` }
 		});
 		if (error) {
 			return fail(400, { email, name, error: error.message });
+		}
+
+		// Confirmation is off in this project, so signUp() already returns a
+		// live session — nothing left to confirm by email.
+		if (data.session) {
+			redirect(303, '/');
 		}
 
 		return { signedUp: true, email };
