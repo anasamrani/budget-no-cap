@@ -23,6 +23,7 @@ export interface MonthlySpend {
 	chartLabels: string[];
 	chartValues: number[];
 	spentThisMonth: number;
+	incomeThisMonth: number;
 }
 
 export async function getMonthlySpend(
@@ -36,8 +37,12 @@ export async function getMonthlySpend(
 		.lt('time', range.to);
 
 	const spendByCategory = new Map<string, number>();
+	let incomeThisMonth = 0;
 	for (const entry of entries ?? []) {
-		if (entry.in_out) continue; // only spending ("out") feeds the chart
+		if (entry.in_out) {
+			incomeThisMonth += entry.ammount;
+			continue; // only spending ("out") feeds the chart
+		}
 		const category = first(first(entry.subcategory)?.category);
 		const cName = category?.c_name ?? 'Other';
 		spendByCategory.set(cName, (spendByCategory.get(cName) ?? 0) + entry.ammount);
@@ -47,7 +52,17 @@ export async function getMonthlySpend(
 	const chartValues = [...spendByCategory.values()];
 	const spentThisMonth = chartValues.reduce((sum, value) => sum + value, 0);
 
-	return { chartLabels, chartValues, spentThisMonth };
+	return { chartLabels, chartValues, spentThisMonth, incomeThisMonth };
+}
+
+// All-time balance: every "in" entry minus every "out" entry.
+export async function getCurrentBalance(supabase: SupabaseClient): Promise<number> {
+	const { data: entries } = await supabase.from('balance').select('ammount, in_out');
+
+	return (entries ?? []).reduce(
+		(total, entry) => total + (entry.in_out ? entry.ammount : -entry.ammount),
+		0
+	);
 }
 
 // Returns one bucket per month in the trailing window (oldest -> newest),
