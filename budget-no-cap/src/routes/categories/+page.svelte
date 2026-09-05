@@ -24,7 +24,9 @@
 
 <div class="mx-auto w-full max-w-4xl px-4 py-10 sm:px-8">
 	<h1 class="text-3xl font-light tracking-tight text-stone-900">Categories</h1>
-	<p class="mt-2 mb-10 text-sm text-stone-500">Double-click a name to rename it.</p>
+	<p class="mt-2 mb-10 text-sm text-stone-500">
+		Double-click a name to rename it. Sub-category priority runs P1 (highest) to P3 (lowest).
+	</p>
 
 	<div class="grid grid-cols-1 gap-10 sm:grid-cols-2">
 		<!-- Categories -->
@@ -179,6 +181,20 @@
 								>
 									{subCategory.sc_name}
 								</button>
+								<form method="POST" action="?/setSubCategoryPriority" use:enhance>
+									<input type="hidden" name="subcategory_id" value={subCategory.subcategory_id} />
+									<select
+										name="priority"
+										value={subCategory.priority ?? 2}
+										onchange={(event) => event.currentTarget.form?.requestSubmit()}
+										aria-label={`Priority for ${subCategory.sc_name}`}
+										class="cursor-pointer rounded-md bg-white px-2 py-1.5 text-[11px] tracking-[0.08em] text-stone-500 tabular-nums ring-1 ring-stone-200 transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
+									>
+										<option value={1}>P1</option>
+										<option value={2}>P2</option>
+										<option value={3}>P3</option>
+									</select>
+								</form>
 								<form method="POST" action="?/deleteSubCategory" use:enhance>
 									<input type="hidden" name="subcategory_id" value={subCategory.subcategory_id} />
 									<button

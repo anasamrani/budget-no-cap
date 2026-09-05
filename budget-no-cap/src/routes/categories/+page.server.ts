@@ -67,7 +67,7 @@ export const actions: Actions = {
 
 		const { error } = await supabase
 			.from('subcategory')
-			.insert({ category_id: categoryId, sc_name: 'New sub-category' });
+			.insert({ category_id: categoryId, sc_name: 'New sub-category', priority: 2 });
 		if (error) return fail(400, { error: error.message });
 	},
 
@@ -79,6 +79,20 @@ export const actions: Actions = {
 		const { error } = await supabase
 			.from('subcategory')
 			.update({ sc_name: scName })
+			.eq('subcategory_id', subcategoryId);
+		if (error) return fail(400, { error: error.message });
+	},
+
+	setSubCategoryPriority: async ({ request, locals: { supabase } }) => {
+		const formData = await request.formData();
+		const subcategoryId = String(formData.get('subcategory_id') ?? '');
+		const priority = Number(formData.get('priority'));
+
+		if (![1, 2, 3].includes(priority)) return fail(400, { error: 'Priority must be 1, 2 or 3.' });
+
+		const { error } = await supabase
+			.from('subcategory')
+			.update({ priority })
 			.eq('subcategory_id', subcategoryId);
 		if (error) return fail(400, { error: error.message });
 	},

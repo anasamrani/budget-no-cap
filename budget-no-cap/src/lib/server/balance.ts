@@ -129,7 +129,7 @@ export async function getEntries(
 ): Promise<BalanceEntry[]> {
 	let query = supabase
 		.from('balance')
-		.select('balance_id, ammount, in_out, time, subcategory(sc_name, category(c_name))')
+		.select('balance_id, ammount, in_out, time, subcategory(sc_name, priority, category(c_name))')
 		.order('time', { ascending: false });
 
 	if (range?.from) query = query.gte('time', range.from);
@@ -145,6 +145,7 @@ export async function getEntries(
 			id: entry.balance_id,
 			date: entry.time.slice(0, 10),
 			subcategory: subcategory?.sc_name ?? 'Uncategorised',
+			priority: subcategory?.priority ?? 2,
 			category: category?.c_name ?? 'Other',
 			amount: entry.ammount,
 			isIncoming: entry.in_out

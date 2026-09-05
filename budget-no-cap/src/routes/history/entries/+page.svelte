@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
+	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -122,7 +123,10 @@
 						</div>
 
 						<div class="order-3 flex-1 basis-full sm:order-none sm:basis-auto">
-							<div class="text-sm font-medium text-stone-900">{entry.subcategory}</div>
+							<div class="flex items-center gap-2 text-sm font-medium text-stone-900">
+								{entry.subcategory}
+								<PriorityBadge priority={entry.priority} />
+							</div>
 							<div class="mt-1 text-xs text-stone-400">{entry.category}</div>
 						</div>
 

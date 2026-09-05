@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import PriorityBadge from '$lib/components/PriorityBadge.svelte';
 	import type { ActionData, PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
@@ -111,13 +112,17 @@
 						<button
 							type="button"
 							onclick={() => (selectedSubCategoryId = subCategory.subcategory_id)}
-							class={`rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none ${
+							class={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none ${
 								selectedSubCategoryId === subCategory.subcategory_id
 									? 'bg-stone-900 text-white'
 									: 'text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100'
 							}`}
 						>
 							{subCategory.sc_name}
+							<PriorityBadge
+								priority={subCategory.priority ?? 2}
+								onDark={selectedSubCategoryId === subCategory.subcategory_id}
+							/>
 						</button>
 					{/each}
 				{:else}
