@@ -22,94 +22,169 @@
 	<title>Categories</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50">
-	<!-- Header -->
-	<header class="border-b border-gray-200 bg-white px-8 py-6 text-center">
-		<h1 class="text-3xl font-bold text-gray-900">Categories</h1>
-	</header>
+<div class="mx-auto w-full max-w-4xl px-4 py-10 sm:px-8">
+	<h1 class="text-3xl font-light tracking-tight text-stone-900">Categories</h1>
+	<p class="mt-2 mb-10 text-sm text-stone-500">Double-click a name to rename it.</p>
 
-	<!-- Content -->
-	<main class="mx-auto max-w-4xl px-6 py-10">
-		<div class="grid grid-cols-2 gap-8">
-			<!-- Categories -->
-			<section class="rounded-2xl bg-white p-6 shadow-sm">
-				<div class="mb-5 flex items-center justify-between">
-					<h2 class="text-xl font-bold text-gray-900">Categories</h2>
+	<div class="grid grid-cols-1 gap-10 sm:grid-cols-2">
+		<!-- Categories -->
+		<section>
+			<div class="mb-4 flex items-center justify-between border-b border-stone-200 pb-3">
+				<h2 class="text-[11px] tracking-[0.18em] text-stone-500 uppercase">Categories</h2>
 
+				<form
+					method="POST"
+					action="?/addCategory"
+					use:enhance={() => {
+						return async ({ result, update }) => {
+							await update();
+							if (result.type === 'success') {
+								const created = data.categories.at(-1);
+								if (created) {
+									selectedCategoryId = created.category_id;
+									editingCategoryId = created.category_id;
+								}
+							}
+						};
+					}}
+				>
+					<button
+						type="submit"
+						aria-label="Add category"
+						class="flex h-7 w-7 items-center justify-center rounded-full text-lg leading-none text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
+					>
+						+
+					</button>
+				</form>
+			</div>
+
+			<div class="divide-y divide-stone-100">
+				{#each data.categories as category (category.category_id)}
+					<div class="flex items-center gap-1">
+						{#if editingCategoryId === category.category_id}
+							<form method="POST" action="?/renameCategory" use:enhance class="flex-1">
+								<input type="hidden" name="category_id" value={category.category_id} />
+								<input
+									use:focusAndSelect
+									name="c_name"
+									value={category.c_name}
+									onblur={(event) => {
+										if (event.currentTarget.value.trim() !== '') {
+											editingCategoryId = null;
+											event.currentTarget.form?.requestSubmit();
+										}
+									}}
+									onkeydown={(event) => {
+										if (event.key === 'Enter' && event.currentTarget.value.trim() !== '') {
+											editingCategoryId = null;
+											event.currentTarget.form?.requestSubmit();
+										}
+									}}
+									placeholder="Category name"
+									class="w-full rounded-md px-3 py-3 font-medium text-stone-900 ring-2 ring-stone-900 outline-none"
+								/>
+							</form>
+						{:else}
+							<button
+								onclick={() => (selectedCategoryId = category.category_id)}
+								ondblclick={() => (editingCategoryId = category.category_id)}
+								class={`flex-1 rounded-md px-3 py-3 text-left text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none ${
+									selectedCategoryId === category.category_id
+										? 'text-stone-900'
+										: 'text-stone-500 hover:text-stone-900'
+								}`}
+							>
+								{category.c_name}
+							</button>
+							<form method="POST" action="?/deleteCategory" use:enhance>
+								<input type="hidden" name="category_id" value={category.category_id} />
+								<button
+									type="submit"
+									aria-label="Delete category"
+									class="flex h-10 w-10 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
+								>
+									×
+								</button>
+							</form>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</section>
+
+		<!-- Sub-categories -->
+		<section>
+			<div class="mb-4 flex items-center justify-between border-b border-stone-200 pb-3">
+				<h2 class="text-[11px] tracking-[0.18em] text-stone-500 uppercase">Sub-categories</h2>
+
+				{#if selectedCategory}
 					<form
 						method="POST"
-						action="?/addCategory"
+						action="?/addSubCategory"
 						use:enhance={() => {
 							return async ({ result, update }) => {
 								await update();
 								if (result.type === 'success') {
-									const created = data.categories.at(-1);
-									if (created) {
-										selectedCategoryId = created.category_id;
-										editingCategoryId = created.category_id;
-									}
+									const created = selectedCategory?.subcategory.at(-1);
+									if (created) editingSubCategoryId = created.subcategory_id;
 								}
 							};
 						}}
 					>
+						<input type="hidden" name="category_id" value={selectedCategory.category_id} />
 						<button
 							type="submit"
-							class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xl font-medium text-white transition hover:bg-blue-700"
+							aria-label="Add sub-category"
+							class="flex h-7 w-7 items-center justify-center rounded-full text-lg leading-none text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
 						>
 							+
 						</button>
 					</form>
-				</div>
+				{/if}
+			</div>
 
-				<div class="space-y-2">
-					{#each data.categories as category (category.category_id)}
+			{#if selectedCategory}
+				<p class="mb-4 text-sm text-stone-500">{selectedCategory.c_name}</p>
+
+				<div class="divide-y divide-stone-100">
+					{#each selectedCategory.subcategory as subCategory (subCategory.subcategory_id)}
 						<div class="flex items-center gap-1">
-							{#if editingCategoryId === category.category_id}
-								<form
-									method="POST"
-									action="?/renameCategory"
-									use:enhance
-									class="flex-1"
-								>
-									<input type="hidden" name="category_id" value={category.category_id} />
+							{#if editingSubCategoryId === subCategory.subcategory_id}
+								<form method="POST" action="?/renameSubCategory" use:enhance class="flex-1">
+									<input type="hidden" name="subcategory_id" value={subCategory.subcategory_id} />
 									<input
 										use:focusAndSelect
-										name="c_name"
-										value={category.c_name}
+										name="sc_name"
+										value={subCategory.sc_name}
 										onblur={(event) => {
 											if (event.currentTarget.value.trim() !== '') {
-												editingCategoryId = null;
+												editingSubCategoryId = null;
 												event.currentTarget.form?.requestSubmit();
 											}
 										}}
 										onkeydown={(event) => {
 											if (event.key === 'Enter' && event.currentTarget.value.trim() !== '') {
-												editingCategoryId = null;
+												editingSubCategoryId = null;
 												event.currentTarget.form?.requestSubmit();
 											}
 										}}
-										placeholder="Category name"
-										class="w-full rounded-xl border border-blue-500 px-4 py-3 font-medium ring-2 ring-blue-100 outline-none"
+										placeholder="Sub-category name"
+										class="w-full rounded-md px-3 py-3 font-medium text-stone-900 ring-2 ring-stone-900 outline-none"
 									/>
 								</form>
 							{:else}
 								<button
-									onclick={() => (selectedCategoryId = category.category_id)}
-									ondblclick={() => (editingCategoryId = category.category_id)}
-									class={`flex-1 rounded-xl px-4 py-3 text-left font-medium transition ${
-										selectedCategoryId === category.category_id
-											? 'bg-blue-600 text-white'
-											: 'text-gray-700 hover:bg-gray-100'
-									}`}
+									ondblclick={() => (editingSubCategoryId = subCategory.subcategory_id)}
+									class="flex-1 rounded-md px-3 py-3 text-left text-sm text-stone-700 transition-colors hover:text-stone-900 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
 								>
-									{category.c_name}
+									{subCategory.sc_name}
 								</button>
-								<form method="POST" action="?/deleteCategory" use:enhance>
-									<input type="hidden" name="category_id" value={category.category_id} />
+								<form method="POST" action="?/deleteSubCategory" use:enhance>
+									<input type="hidden" name="subcategory_id" value={subCategory.subcategory_id} />
 									<button
 										type="submit"
-										aria-label="Delete category"
-										class="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+										aria-label="Delete sub-category"
+										class="flex h-10 w-10 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
 									>
 										×
 									</button>
@@ -118,102 +193,9 @@
 						</div>
 					{/each}
 				</div>
-			</section>
-
-			<!-- Sub-categories -->
-			<section class="rounded-2xl bg-white p-6 shadow-sm">
-				<div class="mb-5 flex items-center justify-between">
-					<h2 class="text-xl font-bold text-gray-900">Sub-Categories</h2>
-
-					{#if selectedCategory}
-						<form
-							method="POST"
-							action="?/addSubCategory"
-							use:enhance={() => {
-								return async ({ result, update }) => {
-									await update();
-									if (result.type === 'success') {
-										const created = selectedCategory?.subcategory.at(-1);
-										if (created) editingSubCategoryId = created.subcategory_id;
-									}
-								};
-							}}
-						>
-							<input type="hidden" name="category_id" value={selectedCategory.category_id} />
-							<button
-								type="submit"
-								class="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-xl font-medium text-white transition hover:bg-blue-700"
-							>
-								+
-							</button>
-						</form>
-					{/if}
-				</div>
-
-				{#if selectedCategory}
-					<p class="mb-4 text-sm text-gray-500">
-						{selectedCategory.c_name}
-					</p>
-
-					<div class="space-y-2">
-						{#each selectedCategory.subcategory as subCategory (subCategory.subcategory_id)}
-							<div class="flex items-center gap-1">
-								{#if editingSubCategoryId === subCategory.subcategory_id}
-									<form method="POST" action="?/renameSubCategory" use:enhance class="flex-1">
-										<input
-											type="hidden"
-											name="subcategory_id"
-											value={subCategory.subcategory_id}
-										/>
-										<input
-											use:focusAndSelect
-											name="sc_name"
-											value={subCategory.sc_name}
-											onblur={(event) => {
-												if (event.currentTarget.value.trim() !== '') {
-													editingSubCategoryId = null;
-													event.currentTarget.form?.requestSubmit();
-												}
-											}}
-											onkeydown={(event) => {
-												if (event.key === 'Enter' && event.currentTarget.value.trim() !== '') {
-													editingSubCategoryId = null;
-													event.currentTarget.form?.requestSubmit();
-												}
-											}}
-											placeholder="Sub-category name"
-											class="w-full rounded-xl border border-blue-500 px-4 py-3 font-medium ring-2 ring-blue-100 outline-none"
-										/>
-									</form>
-								{:else}
-									<button
-										ondblclick={() => (editingSubCategoryId = subCategory.subcategory_id)}
-										class="flex-1 rounded-xl px-4 py-3 text-left text-gray-700 hover:bg-gray-100"
-									>
-										{subCategory.sc_name}
-									</button>
-									<form method="POST" action="?/deleteSubCategory" use:enhance>
-										<input
-											type="hidden"
-											name="subcategory_id"
-											value={subCategory.subcategory_id}
-										/>
-										<button
-											type="submit"
-											aria-label="Delete sub-category"
-											class="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-										>
-											×
-										</button>
-									</form>
-								{/if}
-							</div>
-						{/each}
-					</div>
-				{:else}
-					<p class="text-gray-400">Select a category</p>
-				{/if}
-			</section>
-		</div>
-	</main>
+			{:else}
+				<p class="text-sm text-stone-400">Select a category</p>
+			{/if}
+		</section>
+	</div>
 </div>

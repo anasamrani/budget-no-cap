@@ -33,22 +33,22 @@
 	<title>History</title>
 </svelte:head>
 
-<div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8">
-	<div class="mb-7">
-		<h1 class="text-3xl font-bold text-gray-900">History</h1>
-		<p class="mt-2 text-[15px] text-gray-500">See how your expenses have changed over time.</p>
+<div class="mx-auto w-full max-w-5xl px-4 py-10 sm:px-8">
+	<div class="mb-10">
+		<h1 class="text-3xl font-light tracking-tight text-stone-900">History</h1>
+		<p class="mt-2 text-sm text-stone-500">See how your expenses have changed over time.</p>
 	</div>
 
-	<section class="w-full rounded-xl border border-gray-200 bg-white p-6">
-		<div class="mb-8">
-			<h2 class="text-lg font-semibold text-gray-900">Monthly expenses</h2>
-			<p class="mt-1.5 text-sm text-gray-500">Your expenses over the last 6 months</p>
+	<section>
+		<div class="mb-8 border-b border-stone-200 pb-4">
+			<p class="text-[11px] tracking-[0.18em] text-stone-500 uppercase">Monthly expenses</p>
+			<p class="mt-1.5 text-sm text-stone-500">Your expenses over the last 6 months</p>
 		</div>
 
 		{#if hasSpending}
 			<div class="flex h-[360px]">
 				<div
-					class="flex w-11 flex-col justify-between pr-2.5 pb-[30px] text-right text-xs text-gray-400"
+					class="flex w-11 flex-col justify-between pr-2.5 pb-[30px] text-right text-xs text-stone-400 tabular-nums"
 				>
 					{#each yAxisTicks as tick, i (i)}
 						<span>{tick}</span>
@@ -61,7 +61,7 @@
 						<div></div>
 						<div></div>
 						<div></div>
-						<div class="border-t border-gray-100"></div>
+						<div class="border-t border-stone-200"></div>
 					</div>
 
 					<div
@@ -71,13 +71,13 @@
 							<div class="flex max-w-[60px] flex-1 flex-col items-center sm:max-w-[90px]">
 								<div class="flex w-full flex-1 items-end pb-[30px]">
 									<div
-										class="min-h-1 w-full cursor-pointer rounded-t-md bg-gray-900 transition-opacity hover:opacity-75"
+										class="min-h-1 w-full cursor-pointer bg-stone-900 transition-opacity hover:opacity-70"
 										style={`height: ${(month.amount / maxAmount) * 100}%`}
 										title={`CHF ${month.amount.toLocaleString()}`}
 									></div>
 								</div>
 
-								<span class="flex h-[30px] items-center text-[13px] text-gray-500"
+								<span class="flex h-[30px] items-center text-[13px] text-stone-500"
 									>{month.label}</span
 								>
 							</div>
@@ -86,16 +86,16 @@
 				</div>
 			</div>
 		{:else}
-			<div class="flex h-[200px] items-center justify-center text-sm text-gray-500">
+			<div class="flex h-[200px] items-center justify-center text-sm text-stone-500">
 				No expenses recorded yet.
 			</div>
 		{/if}
 	</section>
 
-	<div class="mt-6 flex justify-center">
+	<div class="mt-8 flex justify-center">
 		<button
 			onclick={() => goto(resolve('/history/entries'))}
-			class="rounded-lg border border-gray-300 bg-white px-4.5 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
+			class="text-sm text-stone-500 underline underline-offset-4 transition-colors hover:text-stone-900 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
 		>
 			Show all entries
 		</button>

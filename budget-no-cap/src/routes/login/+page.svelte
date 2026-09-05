@@ -17,64 +17,75 @@
 	<title>{mode === 'login' ? 'Log in' : 'Sign up'} — budget-no-cap</title>
 </svelte:head>
 
-<div class="mx-auto mt-16 max-w-sm">
-	<h1 class="mb-6 text-xl font-semibold">
+<div class="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center px-4 py-16">
+	<p class="text-[11px] tracking-[0.18em] text-stone-500 uppercase">budget-no-cap</p>
+	<h1 class="mt-2 mb-8 text-3xl font-light tracking-tight text-stone-900">
 		{mode === 'login' ? 'Log in' : 'Create an account'}
 	</h1>
 
 	{#if form?.signedUp}
-		<p class="rounded border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-			Check <strong>{form.email}</strong> for a confirmation link before logging in.
+		<p class="border-t border-stone-200 pt-6 text-sm text-stone-700">
+			Check <span class="font-medium text-stone-900">{form.email}</span> for a confirmation link before
+			logging in.
 		</p>
 	{:else}
 		<form
 			method="POST"
 			action={mode === 'login' ? '?/login' : '?/signup'}
 			use:enhance
-			class="flex flex-col gap-3"
+			class="flex flex-col gap-5"
 		>
 			{#if mode === 'signup'}
-				<label class="flex flex-col gap-1 text-sm">
-					Name
+				<label class="flex flex-col gap-1.5 text-sm">
+					<span class="text-[11px] font-medium tracking-[0.1em] text-stone-500 uppercase">
+						Name
+					</span>
 					<input
 						name="name"
 						type="text"
 						required
 						value={form?.name ?? ''}
-						class="rounded border border-neutral-300 px-3 py-2"
+						class="border-b border-stone-300 bg-transparent py-2 text-stone-900 outline-none focus:border-stone-900"
 					/>
 				</label>
 			{/if}
 
-			<label class="flex flex-col gap-1 text-sm">
-				Email
+			<label class="flex flex-col gap-1.5 text-sm">
+				<span class="text-[11px] font-medium tracking-[0.1em] text-stone-500 uppercase">
+					Email
+				</span>
 				<input
 					name="email"
 					type="email"
 					required
 					value={form?.email ?? ''}
-					class="rounded border border-neutral-300 px-3 py-2"
+					class="border-b border-stone-300 bg-transparent py-2 text-stone-900 outline-none focus:border-stone-900"
 				/>
 			</label>
 
-			<label class="flex flex-col gap-1 text-sm">
-				Password
+			<label class="flex flex-col gap-1.5 text-sm">
+				<span class="text-[11px] font-medium tracking-[0.1em] text-stone-500 uppercase">
+					Password
+				</span>
 				<input
 					name="password"
 					type="password"
 					required
 					minlength="6"
-					class="rounded border border-neutral-300 px-3 py-2"
+					class="border-b border-stone-300 bg-transparent py-2 text-stone-900 outline-none focus:border-stone-900"
 				/>
 			</label>
 
 			{#if form?.error}
-				<p class="text-sm text-red-600">{form.error}</p>
+				<p class="text-sm text-red-700">{form.error}</p>
 			{:else if confirmError}
-				<p class="text-sm text-red-600">{confirmError}</p>
+				<p class="text-sm text-red-700">{confirmError}</p>
 			{/if}
 
-			<button type="submit" class="mt-2 rounded bg-neutral-900 px-3 py-2 text-sm text-white">
+			<button
+				type="submit"
+				class="mt-3 rounded-md bg-stone-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-700 focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:ring-offset-2 focus-visible:outline-none"
+			>
 				{mode === 'login' ? 'Log in' : 'Sign up'}
 			</button>
 		</form>
@@ -82,7 +93,7 @@
 		<button
 			type="button"
 			onclick={() => (mode = mode === 'login' ? 'signup' : 'login')}
-			class="mt-4 text-sm text-neutral-600 underline"
+			class="mt-6 text-left text-sm text-stone-500 underline underline-offset-4 transition-colors hover:text-stone-900 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-stone-900 focus-visible:outline-none"
 		>
 			{mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
 		</button>

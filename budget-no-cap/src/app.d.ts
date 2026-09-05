@@ -12,6 +12,7 @@ declare global {
 		interface PageData {
 			session: Session | null;
 			user: User | null;
+			displayName: string | null;
 		}
 		// interface PageState {}
 		// interface Platform {}
