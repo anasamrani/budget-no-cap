@@ -1,16 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { getCategoriesWithSubcategories } from '$lib/server/categories';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
 	const { user } = await safeGetSession();
 	if (!user) redirect(303, '/login');
 
-	const { data: categories } = await supabase
-		.from('category')
-		.select('category_id, c_name, subcategory(subcategory_id, sc_name)')
-		.order('category_id');
-
-	return { categories: categories ?? [] };
+	return { categories: await getCategoriesWithSubcategories(supabase) };
 };
 
 export const actions: Actions = {

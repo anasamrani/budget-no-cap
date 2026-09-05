@@ -1,16 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
+import { getCategoriesWithSubcategories } from '$lib/server/categories';
+import { getOrCreateAccount } from '$lib/server/account';
+import { addBalanceEntry } from '$lib/server/balance';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
 	const { user } = await safeGetSession();
 	if (!user) redirect(303, '/login');
 
-	const { data: categories } = await supabase
-		.from('category')
-		.select('category_id, c_name, subcategory(subcategory_id, sc_name)')
-		.order('category_id');
-
-	return { categories: categories ?? [] };
+	return { categories: await getCategoriesWithSubcategories(supabase) };
 };
 
 export const actions: Actions = {
@@ -28,31 +26,16 @@ export const actions: Actions = {
 			return fail(400, { error: 'Enter an amount greater than 0.' });
 		}
 
-		// balance.account_id has no default and isn't creatable through the
-		// signup trigger, so ensure the user has an account before their first
-		// entry (the "own account" insert policy lets them create just theirs).
-		let { data: account } = await supabase
-			.from('account')
-			.select('account_id')
-			.maybeSingle();
+		const account = await getOrCreateAccount(supabase, user.id);
+		if ('error' in account) return fail(400, { error: account.error });
 
-		if (!account) {
-			const { data: created, error: accountError } = await supabase
-				.from('account')
-				.insert({ user_id: user.id, a_name: 'Main' })
-				.select('account_id')
-				.single();
-			if (accountError) return fail(400, { error: accountError.message });
-			account = created;
-		}
-
-		const { error } = await supabase.from('balance').insert({
-			ammount: amount,
-			in_out: type === 'in',
-			subcategory_id: subcategoryId,
-			account_id: account?.account_id
+		const result = await addBalanceEntry(supabase, {
+			subcategoryId,
+			amount,
+			isIncoming: type === 'in',
+			accountId: account.accountId
 		});
-		if (error) return fail(400, { error: error.message });
+		if (result?.error) return fail(400, { error: result.error });
 
 		redirect(303, '/');
 	}
