@@ -20,7 +20,7 @@
 	});
 </script>
 
-<div class="mx-auto min-h-screen max-w-2xl px-4 py-6">
+<div class="mx-auto min-h-screen px-4 py-6">
 	{#if user}
 		<header class="mb-6 flex items-center justify-between border-b border-neutral-200 pb-4">
 			<span class="text-sm text-neutral-600">Signed in as {user.email}</span>
