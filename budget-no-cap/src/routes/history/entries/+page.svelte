@@ -1,94 +1,18 @@
 <script lang="ts">
-	type Entry = {
-		id: number;
-		date: string;
-		description: string;
-		category: string;
-		amount: number;
-	};
+	import { resolve } from '$app/paths';
+	import type { PageData } from './$types';
 
-	const entries: Entry[] = [
-		{
-			id: 1,
-			date: '2026-09-05',
-			description: 'Grocery shopping',
-			category: 'Food',
-			amount: 84.5
-		},
-		{
-			id: 2,
-			date: '2026-09-04',
-			description: 'Train ticket',
-			category: 'Transport',
-			amount: 32.0
-		},
-		{
-			id: 3,
-			date: '2026-09-03',
-			description: 'Restaurant',
-			category: 'Food',
-			amount: 67.8
-		},
-		{
-			id: 4,
-			date: '2026-09-01',
-			description: 'Netflix',
-			category: 'Entertainment',
-			amount: 19.9
-		},
-		{
-			id: 5,
-			date: '2026-08-28',
-			description: 'Gas',
-			category: 'Transport',
-			amount: 72.4
-		},
-		{
-			id: 6,
-			date: '2026-08-25',
-			description: 'New shoes',
-			category: 'Shopping',
-			amount: 129.0
-		},
-		{
-			id: 7,
-			date: '2026-08-20',
-			description: 'Supermarket',
-			category: 'Food',
-			amount: 93.25
-		},
-		{
-			id: 8,
-			date: '2026-08-15',
-			description: 'Electricity bill',
-			category: 'Bills',
-			amount: 145.0
-		},
-		{
-			id: 9,
-			date: '2026-08-10',
-			description: 'Cinema',
-			category: 'Entertainment',
-			amount: 28.0
-		},
-		{
-			id: 10,
-			date: '2026-08-03',
-			description: 'Coffee',
-			category: 'Food',
-			amount: 5.5
-		}
-	];
+	let { data }: { data: PageData } = $props();
 
 	let search = $state('');
 	let fromDate = $state('');
 	let toDate = $state('');
 
 	const filteredEntries = $derived(
-		entries.filter((entry) => {
+		data.entries.filter((entry) => {
 			const matchesSearch =
 				search.trim() === '' ||
-				entry.description.toLowerCase().includes(search.toLowerCase()) ||
+				entry.subcategory.toLowerCase().includes(search.toLowerCase()) ||
 				entry.category.toLowerCase().includes(search.toLowerCase());
 
 			const matchesFromDate = fromDate === '' || entry.date >= fromDate;
@@ -104,58 +28,81 @@
 	<title>All Entries</title>
 </svelte:head>
 
-<div class="entries-page">
-	<div class="page-header">
-		<div>
-			<a href="/history" class="back-link">← History</a>
-			<h1>All entries</h1>
-			<p>View and search all your expenses.</p>
-		</div>
+<div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-8">
+	<div class="mb-7">
+		<a
+			href={resolve('/history')}
+			class="mb-4 inline-block text-sm text-gray-500 hover:text-gray-900"
+		>
+			← History
+		</a>
+		<h1 class="text-3xl font-bold text-gray-900">All entries</h1>
+		<p class="mt-2 text-[15px] text-gray-500">View and search all your expenses.</p>
 	</div>
 
 	<!-- Filters -->
-	<section class="filters">
-		<div class="search-container">
-			<label for="search">Search</label>
-			<input id="search" type="search" bind:value={search} placeholder="Search entries..." />
+	<section
+		class="mb-6 flex flex-col items-stretch gap-4 rounded-xl border border-gray-200 bg-white p-5 sm:flex-row sm:items-end"
+	>
+		<div class="flex-1">
+			<label for="search" class="mb-1.5 block text-[13px] font-medium text-gray-700">Search</label>
+			<input
+				id="search"
+				type="search"
+				bind:value={search}
+				placeholder="Search entries..."
+				class="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
+			/>
 		</div>
 
-		<div class="date-container">
-			<div>
-				<label for="from">From</label>
-				<input id="from" type="date" bind:value={fromDate} />
+		<div class="flex gap-3">
+			<div class="flex flex-col">
+				<label for="from" class="mb-1.5 block text-[13px] font-medium text-gray-700">From</label>
+				<input
+					id="from"
+					type="date"
+					bind:value={fromDate}
+					class="h-10 rounded-lg border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
+				/>
 			</div>
 
-			<div>
-				<label for="to">To</label>
-				<input id="to" type="date" bind:value={toDate} />
+			<div class="flex flex-col">
+				<label for="to" class="mb-1.5 block text-[13px] font-medium text-gray-700">To</label>
+				<input
+					id="to"
+					type="date"
+					bind:value={toDate}
+					class="h-10 rounded-lg border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
+				/>
 			</div>
 		</div>
 
 		<button
-			class="clear-button"
 			onclick={() => {
 				search = '';
 				fromDate = '';
 				toDate = '';
 			}}
+			class="h-10 rounded-lg border border-gray-300 bg-white px-4 text-sm text-gray-700 transition hover:bg-gray-50"
 		>
 			Clear filters
 		</button>
 	</section>
 
 	<!-- Entries -->
-	<section class="entries-card">
-		<div class="entries-header">
-			<h2>Entries</h2>
-			<span>{filteredEntries.length} entries</span>
+	<section class="rounded-xl border border-gray-200 bg-white">
+		<div class="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+			<h2 class="text-lg font-semibold text-gray-900">Entries</h2>
+			<span class="text-[13px] text-gray-500">{filteredEntries.length} entries</span>
 		</div>
 
 		{#if filteredEntries.length > 0}
-			<div class="entries-list">
-				{#each filteredEntries as entry}
-					<div class="entry">
-						<div class="entry-date">
+			<div>
+				{#each filteredEntries as entry (entry.id)}
+					<div
+						class="flex flex-wrap items-center gap-3 border-b border-gray-100 px-6 py-4 last:border-b-0 sm:flex-nowrap sm:gap-6"
+					>
+						<div class="w-auto shrink-0 text-[13px] text-gray-500 sm:w-[110px]">
 							{new Date(entry.date + 'T00:00:00').toLocaleDateString('en-GB', {
 								day: '2-digit',
 								month: 'short',
@@ -163,13 +110,15 @@
 							})}
 						</div>
 
-						<div class="entry-info">
-							<div class="entry-description">{entry.description}</div>
-							<div class="entry-category">{entry.category}</div>
+						<div class="order-3 flex-1 basis-full sm:order-none sm:basis-auto">
+							<div class="text-sm font-medium text-gray-900">{entry.subcategory}</div>
+							<div class="mt-1 text-xs text-gray-400">{entry.category}</div>
 						</div>
 
-						<div class="entry-amount">
-							CHF {entry.amount.toLocaleString('de-CH', {
+						<div
+							class={`ml-auto text-sm font-semibold sm:ml-0 ${entry.isIncoming ? 'text-green-600' : 'text-gray-900'}`}
+						>
+							{entry.isIncoming ? '+' : '-'} CHF {entry.amount.toLocaleString('de-CH', {
 								minimumFractionDigits: 2,
 								maximumFractionDigits: 2
 							})}
@@ -178,251 +127,12 @@
 				{/each}
 			</div>
 		{:else}
-			<div class="empty-state">
-				<p>No entries found.</p>
-				<span>Try changing your search or date filters.</span>
+			<div class="px-5 py-15 text-center">
+				<p class="m-0 text-[15px] font-medium text-gray-700">No entries found.</p>
+				<span class="mt-1.5 block text-[13px] text-gray-400">
+					Try changing your search or date filters.
+				</span>
 			</div>
 		{/if}
 	</section>
 </div>
-
-<style>
-	.entries-page {
-		width: 100%;
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 32px;
-		box-sizing: border-box;
-	}
-
-	.page-header {
-		margin-bottom: 28px;
-	}
-
-	.back-link {
-		display: inline-block;
-		margin-bottom: 16px;
-		color: #6b7280;
-		font-size: 14px;
-		text-decoration: none;
-	}
-
-	.back-link:hover {
-		color: #111827;
-	}
-
-	h1 {
-		margin: 0;
-		font-size: 30px;
-		font-weight: 700;
-		color: #111827;
-	}
-
-	.page-header p {
-		margin: 8px 0 0;
-		color: #6b7280;
-		font-size: 15px;
-	}
-
-	.filters {
-		display: flex;
-		align-items: flex-end;
-		gap: 16px;
-		margin-bottom: 24px;
-		padding: 20px;
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-	}
-
-	.search-container {
-		flex: 1;
-	}
-
-	.date-container {
-		display: flex;
-		gap: 12px;
-	}
-
-	.date-container > div {
-		display: flex;
-		flex-direction: column;
-	}
-
-	label {
-		display: block;
-		margin-bottom: 6px;
-		font-size: 13px;
-		font-weight: 500;
-		color: #374151;
-	}
-
-	input {
-		height: 40px;
-		padding: 0 12px;
-		box-sizing: border-box;
-		border: 1px solid #d1d5db;
-		border-radius: 8px;
-		background: white;
-		color: #111827;
-		font-size: 14px;
-		outline: none;
-	}
-
-	input:focus {
-		border-color: #6b7280;
-		box-shadow: 0 0 0 2px #f3f4f6;
-	}
-
-	.search-container input {
-		width: 100%;
-	}
-
-	.clear-button {
-		height: 40px;
-		padding: 0 14px;
-		border: 1px solid #d1d5db;
-		border-radius: 8px;
-		background: white;
-		color: #374151;
-		font-size: 14px;
-		cursor: pointer;
-	}
-
-	.clear-button:hover {
-		background: #f9fafb;
-	}
-
-	.entries-card {
-		background: white;
-		border: 1px solid #e5e7eb;
-		border-radius: 12px;
-		overflow: hidden;
-	}
-
-	.entries-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 20px 24px;
-		border-bottom: 1px solid #e5e7eb;
-	}
-
-	.entries-header h2 {
-		margin: 0;
-		font-size: 18px;
-		font-weight: 600;
-		color: #111827;
-	}
-
-	.entries-header span {
-		color: #6b7280;
-		font-size: 13px;
-	}
-
-	.entry {
-		display: flex;
-		align-items: center;
-		gap: 24px;
-		padding: 18px 24px;
-		border-bottom: 1px solid #f3f4f6;
-	}
-
-	.entry:last-child {
-		border-bottom: none;
-	}
-
-	.entry-date {
-		width: 110px;
-		flex-shrink: 0;
-		color: #6b7280;
-		font-size: 13px;
-	}
-
-	.entry-info {
-		flex: 1;
-	}
-
-	.entry-description {
-		color: #111827;
-		font-size: 14px;
-		font-weight: 500;
-	}
-
-	.entry-category {
-		margin-top: 4px;
-		color: #9ca3af;
-		font-size: 12px;
-	}
-
-	.entry-amount {
-		font-size: 14px;
-		font-weight: 600;
-		color: #111827;
-	}
-
-	.empty-state {
-		padding: 60px 20px;
-		text-align: center;
-	}
-
-	.empty-state p {
-		margin: 0;
-		color: #374151;
-		font-size: 15px;
-		font-weight: 500;
-	}
-
-	.empty-state span {
-		display: block;
-		margin-top: 6px;
-		color: #9ca3af;
-		font-size: 13px;
-	}
-
-	@media (max-width: 800px) {
-		.entries-page {
-			padding: 20px 16px;
-		}
-
-		.filters {
-			flex-direction: column;
-			align-items: stretch;
-		}
-
-		.date-container {
-			width: 100%;
-		}
-
-		.date-container > div {
-			flex: 1;
-		}
-
-		.entry {
-			gap: 12px;
-		}
-
-		.entry-date {
-			width: 90px;
-		}
-	}
-
-	@media (max-width: 550px) {
-		.entry {
-			flex-wrap: wrap;
-		}
-
-		.entry-date {
-			width: auto;
-		}
-
-		.entry-amount {
-			margin-left: auto;
-		}
-
-		.entry-info {
-			order: 3;
-			flex-basis: 100%;
-		}
-	}
-</style>
