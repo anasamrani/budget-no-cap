@@ -1,65 +1,52 @@
-# Svelte library
+# budget-no-cap
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
-
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-bun x sv@0.17.0 create --template library --types ts --add prettier eslint tailwindcss="plugins:none" --install bun budget-no-cap
-```
+A small SvelteKit app with Supabase Auth and a per-user budget balance viewer.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun install
+bun run dev
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+Copy `.env.example` to `.env` and fill in `PUBLIC_SUPABASE_URL` /
+`PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project settings first.
+
+### Corporate TLS proxy (Zscaler etc.)
+
+If `bun run dev` fails on signup/login with `fetch failed` /
+`unable to get local issuer certificate`, this machine's network is intercepting HTTPS
+(commonly a corporate proxy like Zscaler) with a certificate Bun/Node don't trust by default —
+even though `curl` and the browser work fine, since they use the OS trust store.
+
+Export the intercepting root CA to a PEM file and point `NODE_EXTRA_CA_CERTS` at it for anything
+that runs Bun/Node and talks to Supabase:
+
+```sh
+NODE_EXTRA_CA_CERTS=/path/to/root-ca.pem bun run dev
+NODE_EXTRA_CA_CERTS=/path/to/root-ca.pem bun run test:auth
+```
+
+This is machine-specific, not project config — don't bake it into `package.json` scripts, since
+it would break the app for anyone not behind the same proxy.
+
+## Testing auth
+
+```sh
+bun run dev            # in one terminal
+bun run test:auth       # in another
+```
+
+Runs [scripts/smoke-auth.mjs](scripts/smoke-auth.mjs): drives the login/signup/logout flow against
+the running dev server, then verifies RLS actually isolates data between two accounts by hitting
+the Supabase REST API directly. Safe to re-run — it reuses fixed test accounts/rows instead of
+piling up new ones.
 
 ## Building
 
-To build your library:
-
 ```sh
-npm pack
+bun run build
 ```
 
-To create a production version of your showcase app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
-
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```sh
-npm publish
-```
+Preview the production build with `bun run preview`. You'll need to add an
+[adapter](https://svelte.dev/docs/kit/adapters) for your target deployment environment.
