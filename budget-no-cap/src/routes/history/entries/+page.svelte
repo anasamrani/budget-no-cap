@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
 	import type { PageData } from './$types';
 
@@ -123,6 +124,17 @@
 								maximumFractionDigits: 2
 							})}
 						</div>
+
+						<form method="POST" action="?/deleteEntry" use:enhance>
+							<input type="hidden" name="entry_id" value={entry.id} />
+							<button
+								type="submit"
+								aria-label="Delete entry"
+								class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+							>
+								×
+							</button>
+						</form>
 					</div>
 				{/each}
 			</div>

@@ -19,6 +19,26 @@ export async function addBalanceEntry(
 	if (error) return { error: error.message };
 }
 
+export async function deleteBalanceEntry(
+	supabase: SupabaseClient,
+	entryId: string
+): Promise<{ error: string } | undefined> {
+	const { error } = await supabase.from('balance').delete().eq('balance_id', entryId);
+	if (error) return { error: error.message };
+}
+
+// Used to cascade-delete a category/sub-category's entries before the
+// category/sub-category itself is removed.
+export async function deleteEntriesForSubcategories(
+	supabase: SupabaseClient,
+	subcategoryIds: string[]
+): Promise<{ error: string } | undefined> {
+	if (subcategoryIds.length === 0) return;
+
+	const { error } = await supabase.from('balance').delete().in('subcategory_id', subcategoryIds);
+	if (error) return { error: error.message };
+}
+
 export interface MonthlySpend {
 	chartLabels: string[];
 	chartValues: number[];
