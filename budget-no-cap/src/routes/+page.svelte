@@ -6,6 +6,8 @@
 
 	const userEmail = 'user@example.com';
 
+	let showUserMenu = $state(false);
+
 	const chartData = {
 		labels: ['Food', 'Transport', 'Entertainment', 'Other'],
 		datasets: [
@@ -35,19 +37,47 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col bg-gray-50">
-	<!-- Header -->
-	<header class="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-6">
-		<!-- svelte-ignore a11y_missing_content -->
-		<h1 class="text-3xl font-bold text-gray-900"></h1>
-		<h1 class="text-3xl font-bold text-gray-900">Balance</h1>
+<header class="flex items-center justify-between border-b border-gray-200 bg-white px-8 py-6">
+	<h1 class="text-3xl font-bold text-gray-900">
+		Balance
+	</h1>
 
-		<div class="text-sm text-gray-500">
+	<div class="relative">
+		<button
+			onclick={() => (showUserMenu = !showUserMenu)}
+			class="flex items-center gap-2 text-sm text-gray-600 transition hover:text-gray-900"
+		>
 			{userEmail}
-		</div>
-	</header>
+
+			<span class="text-xs">
+				{showUserMenu ? '▲' : '▼'}
+			</span>
+		</button>
+
+		{#if showUserMenu}
+			<div
+				class="absolute right-0 z-10 mt-2 w-40 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+			>
+				<a
+					href="/history"
+					class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+				>
+					History
+				</a>
+
+				<a
+					href="/categories"
+					class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+				>
+					Categories
+				</a>
+			</div>
+		{/if}
+	</div>
+</header>
 
 	<!-- Main content -->
-	<main class="flex flex-1 flex-col items-center justify-center px-6 py-10">
+	<main class="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-8 py-10">
 		<!-- Pie chart -->
 		<div class="h-[350px] w-[350px] max-w-full">
 			<Pie data={chartData} options={chartOptions} />
