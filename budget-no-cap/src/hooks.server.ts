@@ -7,6 +7,9 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/stati
 // so any +page.server.ts / +server.ts down the line can just do
 // `const { supabase } = event.locals` instead of re-creating a client.
 export const handle: Handle = async ({ event, resolve }) => {
+	console.log('REQUEST URL:', event.request.url);
+	console.log('REQUEST COOKIE:', event.request.headers.get('cookie'));
+	console.log('PLATFORM COOKIE:', event.platform?.req?.headers?.cookie);
 	event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
