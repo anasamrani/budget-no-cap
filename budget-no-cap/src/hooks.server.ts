@@ -31,7 +31,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Supabase — a forged/expired cookie would pass. getUser() re-validates the
 	// JWT against Supabase's servers, so this is the version safe to gate access on.
 	event.locals.safeGetSession = async () => {
-		console.log('COOKIES ON REQUEST:', event.cookies.getAll().map((c) => c.name));
+		console.log('RAW COOKIE HEADER:', event.request.headers.get('cookie'));
+		console.log('SVELTEKIT COOKIES:', event.cookies.getAll().map((c) => c.name));
 
 		const {
 			data: { user },
