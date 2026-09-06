@@ -30,7 +30,6 @@
 		<form
 			method="POST"
 			action={mode === 'login' ? '?/login' : '?/signup'}
-			use:enhance
 			class="flex flex-col gap-3"
 		>
 			{#if mode === 'signup'}
