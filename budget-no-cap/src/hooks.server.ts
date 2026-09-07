@@ -7,15 +7,10 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/stati
 // so any +page.server.ts / +server.ts down the line can just do
 // `const { supabase } = event.locals` instead of re-creating a client.
 export const handle: Handle = async ({ event, resolve }) => {
-	console.log('REQUEST URL:', event.request.url);
-	console.log('REQUEST COOKIE:', event.request.headers.get('cookie'));
-	console.log('PLATFORM COOKIE:', event.platform?.req?.headers?.cookie);
 	event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
 		cookies: {
 			getAll: () => event.cookies.getAll(),
 			setAll: (cookiesToSet, headers) => {
-				console.log('SETTING COOKIES:', cookiesToSet.map((c) => c.name));
-
 				cookiesToSet.forEach(({ name, value, options }) => {
 					event.cookies.set(name, value, {
 						...options,
@@ -35,15 +30,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Supabase — a forged/expired cookie would pass. getUser() re-validates the
 	// JWT against Supabase's servers, so this is the version safe to gate access on.
 	event.locals.safeGetSession = async () => {
-		console.log('RAW COOKIE HEADER:', event.request.headers.get('cookie'));
-		console.log('SVELTEKIT COOKIES:', event.cookies.getAll().map((c) => c.name));
-
 		const {
 			data: { user },
 			error
 		} = await event.locals.supabase.auth.getUser();
-
-		console.log('GET USER:', user?.email ?? 'NO USER', error?.message ?? '');
 
 		if (error || !user) {
 			return { session: null, user: null };
